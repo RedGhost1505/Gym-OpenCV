@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pump generator</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-
-</head>
-<body>
-    <div class="min-h-screen min-w-screen overflow-hidden flex" style="background-image: url(/static/images/photo-1534438327276-14e5300c3a48.avif); background-size: cover; background-position: center;" >
-       
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              clifford: "#da373d",
+            },
+            animation: {
+              "fade": "fade 2.5s cubic-bezier(0.4, 0, 0.6, 1);",
+            },
+            keyframes: {
+              fade: {
+                "100%": { opacity: 1, margin: '0px'},
+                "0%": { opacity: .0, margin: '50px 0px 0px 0px'  },
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div
+      class="min-h-screen min-w-screen overflow-hidden flex"
+      style="
+        background-image: url(/static/images/photo-1534438327276-14e5300c3a48.avif);
+        background-size: cover;
+        background-position: center;
+      "
+    >
       <!-- <nav class="relative flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] py-2 text-neutral-500 shadow-lg hover:text-neutral-700 focus:text-neutral-700 dark:bg-cyan-400 lg:py-4">
         <div class="flex w-full flex-wrap items-center justify-between px-3">
           <div class="prose ml-2">
@@ -18,44 +43,39 @@
         </div>
       </nav> -->
 
-          
-        <div class="prose h-fit ml-[5%] mt-[19%]">
-            <h1 class="text-[#EDFF0C] text-8xl">PumpGenerator</h1>
-        </div>
+      <div class="prose h-fit ml-[5%] mt-[19%]">
+        <h1 class="animate-fade text-[#EDFF0C] text-8xl">PumpGenerator</h1>
+      </div>
 
-        <div class="ml-[20%] mt-[19%]">
-            <img id="video-frame" src="" alt="Video Frame">
-        </div>
-
+      <div class="ml-[20%] mt-[19%]">
+        <img id="video-frame" src="" alt="Video Frame" />
+      </div>
     </div>
-
-
-
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
     <script>
+      // Utiliza io.connect y pasa la URL directamente
+      var socket = io.connect(
+        "http://" + document.domain + ":" + location.port
+      );
+      var videoFrame = document.getElementById("video-frame");
+      var frame_data;
 
-        // Utiliza io.connect y pasa la URL directamente
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        var videoFrame = document.getElementById('video-frame');
-        var frame_data;
+      // videoFrame.src = '/static/images/gato.jpg';
 
+      // CameraFunction.js
 
-        // videoFrame.src = '/static/images/gato.jpg';
+      // Utiliza la función emit para enviar eventos al servidor
+      socket.emit("initiate_camera");
 
-        // CameraFunction.js
+      // Descomenta estas líneas si son necesarias
 
-        // Utiliza la función emit para enviar eventos al servidor
-        socket.emit('initiate_camera');
-
-        // Descomenta estas líneas si son necesarias
-
-        socket.on('new_frame', function(data) {
-            frame_data = "data:image/jpeg;base64," + btoa(String.fromCharCode.apply(null, new Uint8Array(data.frame)));
-            videoFrame.src = frame_data;
-        });
-
+      socket.on("new_frame", function (data) {
+        frame_data =
+          "data:image/jpeg;base64," +
+          btoa(String.fromCharCode.apply(null, new Uint8Array(data.frame)));
+        videoFrame.src = frame_data;
+      });
     </script>
-</body>
+  </body>
 </html>
