@@ -47,9 +47,19 @@
         <h1 class="animate-fade text-[#EDFF0C] text-8xl">PumpGenerator</h1>
       </div>
 
-      <div class="ml-[20%] mt-[19%]">
-        <img id="video-frame" src="" alt="Video Frame" />
+      <div class="ml-[15%] mt-[10%] mr-[1%]">
+        <img id="video-frame" class="w-[100%] h-[480px]" src="" alt="Video Frame" />
+        <div class="mt-2 flex items-center">
+          <label class="relative cursor-pointer">
+            <input type="checkbox" id="cameraCheckbox" class="sr-only peer" />
+            <div
+              class="w-11 h-6 flex items-center bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:absolute after:left-[2px] peer-checked:after:border-white after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EDFF0C]">
+            </div>
+          </label>
+          <p class="ml-4 text-sm font-medium text-gray-900 dark:text-gray-300">Open camera</p>
+        </div>
       </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
@@ -59,23 +69,35 @@
         "http://" + document.domain + ":" + location.port
       );
       var videoFrame = document.getElementById("video-frame");
+      videoFrame.src = "/static/images/4600752-200.png";
       var frame_data;
+      
+      cameraCheckbox.addEventListener('change', function() {
 
-      // videoFrame.src = '/static/images/gato.jpg';
+      // Verifica si el checkbox está marcado o desmarcado
+      if (this.checked) {
+        // Acciones a realizar cuando el checkbox está marcado
+        console.log('On');
 
-      // CameraFunction.js
+        socket.emit("camera_function",{ is_enabled: true });
+        socket.on("new_frame", function (data) {
+          frame_data =
+            "data:image/jpeg;base64," +
+            btoa(String.fromCharCode.apply(null, new Uint8Array(data.frame)));
+          videoFrame.src = frame_data;
+        });
+      } 
+      else {
+        // Acciones a realizar cuando el checkbox está desmarcado
 
-      // Utiliza la función emit para enviar eventos al servidor
-      socket.emit("initiate_camera");
+        socket.emit("camera_function",{ is_enabled: false });
+        socket.removeAllListeners('new_frame'); 
+        videoFrame.src = "/static/images/4600752-200.png";
+        console.log('Off');
+      }
+    });
 
-      // Descomenta estas líneas si son necesarias
 
-      socket.on("new_frame", function (data) {
-        frame_data =
-          "data:image/jpeg;base64," +
-          btoa(String.fromCharCode.apply(null, new Uint8Array(data.frame)));
-        videoFrame.src = frame_data;
-      });
     </script>
   </body>
 </html>

@@ -1,11 +1,11 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 from flask_socketio import SocketIO, emit
 import cv2
 
 app = Flask(__name__)
 socketio = SocketIO(app)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
+camera = None
 #--------------------------------------------------------------
 def open_camera():
     #Here we open the camera
@@ -41,12 +41,11 @@ def capture_operations(cap):
         #cv2.imshow("Captura", frame)
         emit('new_frame', {'frame': frame_data}, broadcast=True)
 
-        # Romper el bucle si se presiona la tecla 'q'
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-            #break
+        
+def close_camera(cap):
+    # Liberar la captura de video
+    cap.release()
 
-    # Cerrar la ventana al salir del bucle
-    #cv2.destroyAllWindows()
 #--------------------------------------------------------------
 
 
@@ -54,13 +53,18 @@ def capture_operations(cap):
 def index():
     return render_template('index.html')
 
-@socketio.on('initiate_camera')
-def camera_start():
+@socketio.on('camera_function')
+def camera_start(data):
     
-    camera = open_camera()
-    if camera is not None:
-        capture_operations(camera)
+    is_enabled = data.get('is_enabled')
 
+    if is_enabled:
+        global camera 
+        camera = open_camera()
+        if camera is not None:
+            capture_operations(camera)
+    else:
+        camera.release()
 
 
 if __name__ == '__main__':
